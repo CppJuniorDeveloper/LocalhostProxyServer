@@ -1,0 +1,36 @@
+# =============================================
+build/
+out/
+bin/
+obj/
+*.exe
+*.obj
+*.o
+*.a
+*.lib
+*.so
+*.dll
+*.pdb
+*.ilk
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# =============================================
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln
+*.vcxproj*
+*.filters
+
+# =============================================
+logs/
+*.log
+
+# =============================================
+.DS_Store
+Thumbs.db

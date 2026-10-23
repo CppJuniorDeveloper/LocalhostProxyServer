@@ -1,0 +1,61 @@
+cmake_minimum_required(VERSION 3.27)
+
+project(LearnBoostAsio VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+    ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}
+)
+
+set(HEADERS
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/core
+    ${CMAKE_SOURCE_DIR}/include/utils
+)
+
+set(SERVER_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/apps/Server.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/ClientLogger.cpp
+)
+
+set(PROXY_SERVER_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/apps/Proxy.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/ProxyServer.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/ProxySession.cpp
+)
+
+set(BOOST_ROOT "/ucrt64")
+set(Boost_NO_SYSTEM_PATHS ON)
+
+find_package(Boost REQUIRED CONFIG)
+
+set(_compiler ${CMAKE_CXX_COMPILER_ID})
+
+function(setup_target target)
+    target_link_libraries(${target} PRIVATE Boost::boost)
+    target_link_libraries(${target} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+
+    if (MINGW)
+        target_link_libraries(${target} PRIVATE ws2_32 mswsock)
+    endif()
+
+    target_include_directories(${target} PRIVATE ${HEADERS})
+
+    if (_compiler STREQUAL "Clang" OR
+        _compiler STREQUAL "AppleClang" OR
+        _compiler STREQUAL "GNU")
+        target_compile_options(${target} PRIVATE
+            -g -Wall -Wextra -Wpedantic -Werror)
+    elseif(_compiler STREQUAL "MSVC")
+        target_compile_options(${target} PRIVATE /W4 /WX)
+    endif()
+endfunction()
+
+
+add_executable(server ${SERVER_SOURCES})
+setup_target(server)
+
+add_executable(proxy ${PROXY_SERVER_SOURCES})
+setup_target(proxy)
